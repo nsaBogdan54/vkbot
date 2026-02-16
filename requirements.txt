@@ -1,0 +1,35 @@
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            username TEXT,
+            topic TEXT,
+            description TEXT,
+            status TEXT DEFAULT 'новая',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+elif user_id in user_states and user_states[user_id].get("step") == "waiting_topic":
+    if text in ["Принтер", "Интернет", "Другое"]:
+        user_states[user_id] = {"step": "waiting_description", "topic": text}
+        send_message(user_id, f"Тема: {text}\nОпишите проблему:")
+    elif text == "Назад":
+        del user_states[user_id]
+        send_message(LABORANT_ID, "Вы в панели лаборанта.", laborant_main_menu())
+        continue
+    else:
+        send_message(user_id, "Выберите тему из списка.", topic_menu())
+
+elif user_id in user_states and user_states[user_id].get("step") == "waiting_description":
+    topic = user_states[user_id]["topic"]
+    user_states[user_id] = {"step": "waiting_location", "topic": topic, "description": text}
+    send_message(user_id, "Укажите кабинет:")
+
+elif user_id in user_states and user_states[user_id].get("step") == "waiting_location":
+    topic = user_states[user_id]["topic"]
+    description = user_states[user_id]["description"]
+    location = text  # теперь text = кабинет
+    req_id = save_request(user_id, topic, description, location)
+    del user_states[user_id]
+    send_message(user_id, f"✅ Заявка №{req_id} принята!", laborant_main_menu())
+
+    # Уведомление лаборанту (себе же — можно опустить, но ок)
+    username = get_user_name(user_id)
+    lab_msg = f"🔔 Новая заявка №{req_id}\nОт: {username}\nТема: {topic}\nОписание: {description}\nКабинет: {location}"
+    send_message(LABORANT_ID, lab_msg)
