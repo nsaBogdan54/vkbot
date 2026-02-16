@@ -381,3 +381,15 @@ for event in longpoll.listen():
                     send_message(user_id, "Заявка не найдена или не принадлежит вам.")
             else:
                 send_message(user_id, "Выберите действие:", employee_menu())
+
+
+try:
+    for event in longpoll.listen():
+        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+            # ... ВЕСЬ твой существующий код обработки сообщений ...
+            # (режим лаборанта, сотрудника, /back и т.д.)
+
+except KeyboardInterrupt:
+    print("\n🛑 Бот остановлен вручную.")
+except Exception as e:
+    print(f"❌ Критическая ошибка: {e}")
