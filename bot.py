@@ -1,4 +1,4 @@
-# bot_oop.py
+# bot.py
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
@@ -424,7 +424,7 @@ class RequestSystem:
                     else:
                         self.handle_employee(user_id, text)
         except KeyboardInterrupt:
-            print("\n🛑 Бот остановлен вручную.")
+            print("\nБот остановлен вручную.")
 
 
 # === ЗАПУСК ===
