@@ -167,7 +167,7 @@ class RequestSystem:
                     if lab_id != user_id:
                         self.send_message(lab_id, f"✅ Коллега {username} выполнил заявку №{req_id}")
                 del self.user_states[user_id]
-                self.send_message(user_id, "Вы в панели лаборанта.", self.laborant_main_menu())
+                self.send_message(user_id, "Пометил! Вы в панели лаборанта.", self.laborant_main_menu())
                 return True
             elif text == f"В пути ({req_id})":
                 self.update_status(req_id, "📍 в пути")
@@ -179,7 +179,7 @@ class RequestSystem:
                     if lab_id != user_id:
                         self.send_message(lab_id, f"📍 Коллега {username} выехал по заявке №{req_id}")
                 del self.user_states[user_id]
-                self.send_message(user_id, "Вы в панели лаборанта.", self.laborant_main_menu())
+                self.send_message(user_id, "Пометил! Вы в панели лаборанта.", self.laborant_main_menu())
                 return True
             elif text == f"Отменить ({req_id})":
                 self.update_status(req_id, "❌ отменена")
@@ -191,7 +191,7 @@ class RequestSystem:
                     if lab_id != user_id:
                         self.send_message(lab_id, f"❌ Коллега {username} отменил заявку №{req_id}")
                 del self.user_states[user_id]
-                self.send_message(user_id, "Вы в панели лаборанта.", self.laborant_main_menu())
+                self.send_message(user_id, "Пометил! Вы в панели лаборанта.", self.laborant_main_menu())
                 return True
             elif text == "Назад":
                 del self.user_states[user_id]
@@ -224,9 +224,9 @@ class RequestSystem:
             last_status = None
             headers = {
                 "🔔 новая": "\n\n🔔🔔НОВЫЕ ЗАЯВКИ🔔🔔:\n",
-                "✅ готово": "\n\n\n✅✅ВЫПОЛНЕННЫЕ✅✅:\n",
-                "❌ отменена": "\n\n───────────────────────────\n❌─────❌ОТМЕНЕННЫЕ❌─────❌\n",
-                "📍 в пути": "\n\n============================\n"
+                "✅ готово": "\n \n\n✅✅ВЫПОЛНЕННЫЕ✅✅:\n",
+                "❌ отменена": "\n \n\n───────────────────────────\n❌─────❌ОТМЕНЕННЫЕ❌─────❌\n",
+                "📍 в пути": "\n \n\n============================\n"
                             "📍======📍В ПУТИ📍======📍\n"
             }
             for r in rows:
@@ -266,7 +266,7 @@ class RequestSystem:
             req = self.get_request(req_id)
             if req:
                 uid, name, topic, desc, status, location = req[1], req[2], req[3], req[4], req[5], req[6]
-                msg = f"📄 Заявка №{req_id}\nОт: {name} (id{uid})\nТема: {topic}\nСтатус: {status}\nОписание: {desc}\nКаб:{location}"
+                msg = f"📄 Заявка №{req_id}\nОт: {name} (id{uid})\nСтатус: {status}\nТема: {topic}\nОписание: {desc}\nКабинет: {location}"
                 self.user_states[user_id] = {'viewing_request': req_id}
                 self.send_message(user_id, msg, self.laborant_action_kb(req_id))
             else:
@@ -403,6 +403,12 @@ class RequestSystem:
                     user_id = event.user_id
                     text = event.text.strip()
 
+                    if text.lower() == "начать":
+                        if user_id in self.LABORANT_IDS:
+                            self.send_message(user_id, "Привет. \nЯ помощник по заявкам, веду учет, присылаю уведомления и меняю статус заявок!")
+                        else:
+                            self.send_message(user_id, "Добро пожаловать!"
+                                                   "\nЯ бот, который поможет вам создавать заявки и отслеживать их статус.")
                     # /back — сброс состояния
                     if text == "/back":
                         if user_id in self.user_states:
@@ -412,7 +418,6 @@ class RequestSystem:
                         else:
                             self.send_message(user_id, "Выберите действие:", self.employee_menu())
                         continue
-
                     # Режим лаборанта или сотрудника
                     if user_id in self.LABORANT_IDS:
                         self.handle_laborant(user_id, text)
